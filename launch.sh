@@ -118,9 +118,9 @@ fi
 
 if [ ! -f "$OVMF_CODE" ] || [ ! -f "$OVMF_VARS" ]; then
     echo "[!] OVMF not found, using system OVMF..."
-    if [ -f "/usr/share/OVMF/OVMF_CODE.fd" ]; then
-        OVMF_CODE="/usr/share/OVMF/OVMF_CODE.fd"
-        OVMF_VARS="/usr/share/OVMF/OVMF_VARS.fd"
+    if [ -f "/usr/share/OVMF/OVMF_CODE_4M.fd" ]; then
+        OVMF_CODE="/usr/share/OVMF/OVMF_CODE_4M.fd"
+        OVMF_VARS="/usr/share/OVMF/OVMF_VARS_4M.fd"
     else
         echo "[-] OVMF not found. Please run: ./setup.sh -t ovmf"
         exit 1
@@ -201,8 +201,8 @@ sudo $QEMU \
   -m 32g \
   -smp 8 \
   -uuid 13486104-b2ea-4151-a5ad-5b580cbd871a \
-  -drive if=pflash,format=raw,readonly=on,file=./ovmf/OVMF_CODE.fd \
-  -drive if=pflash,format=raw,file=./ovmf/OVMF_VARS.fd \
+  -drive if=pflash,format=raw,readonly=on,file=./ovmf/OVMF_CODE_4M.fd \
+  -drive if=pflash,format=raw,file=./ovmf/OVMF_VARS_4M.fd \
   -drive file=images/${IMG}.qcow2,if=virtio,format=qcow2,cache=none,aio=native \
   -cdrom images/cloud-init.iso \
   -device ioh3420,id=pcie.0,chassis=1 \
