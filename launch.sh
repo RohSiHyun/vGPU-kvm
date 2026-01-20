@@ -4,8 +4,8 @@
 PORT=10022
 IMG="ubuntu2404"
 QEMU="$PWD/qemu/build/qemu-system-x86_64"
-OVMF_CODE="$PWD/ovmf/OVMF_CODE.fd"
-OVMF_VARS="$PWD/ovmf/OVMF_VARS.fd"
+OVMF_CODE="$PWD/ovmf/OVMF_CODE_4M.fd"
+OVMF_VARS="$PWD/ovmf/OVMF_VARS_4M.fd"
 
 GPU=""
 GPU_AUDIO=""
