@@ -1,11 +1,10 @@
 #!/bin/bash -e
 
-
 PORT=10022
 IMG="ubuntu2404"
 QEMU="$PWD/qemu/build/qemu-system-x86_64"
-OVMF_CODE="$PWD/ovmf/OVMF_CODE_4M.fd"
-OVMF_VARS="$PWD/ovmf/OVMF_VARS_4M.fd"
+OVMF_CODE_4M="$PWD/ovmf/OVMF_CODE_4M.fd"
+OVMF_VARS_4M="$PWD/ovmf/OVMF_VARS_4M.fd"
 
 GPU=""
 GPU_AUDIO=""
@@ -116,11 +115,11 @@ if [ ! -f "images/${IMG}.qcow2" ]; then
     exit 1
 fi
 
-if [ ! -f "$OVMF_CODE" ] || [ ! -f "$OVMF_VARS" ]; then
+if [ ! -f "$OVMF_CODE_4M" ] || [ ! -f "$OVMF_VARS_4M" ]; then
     echo "[!] OVMF not found, using system OVMF..."
     if [ -f "/usr/share/OVMF/OVMF_CODE_4M.fd" ]; then
-        OVMF_CODE="/usr/share/OVMF/OVMF_CODE_4M.fd"
-        OVMF_VARS="/usr/share/OVMF/OVMF_VARS_4M.fd"
+        OVMF_CODE_4M="/usr/share/OVMF/OVMF_CODE_4M.fd"
+        OVMF_VARS_4M="/usr/share/OVMF/OVMF_VARS_4M.fd"
     else
         echo "[-] OVMF not found. Please run: ./setup.sh -t ovmf"
         exit 1
@@ -190,9 +189,11 @@ echo "Image: images/${IMG}.qcow2"
 echo "========================================"
 echo ""
 echo "SSH: ssh -p ${PORT} ubuntu@localhost"
-echo "Default password: ubuntu"
+echo "Default Passwd: ubuntu"
 echo ""
 
+
+VF_ADDR="81:00.4"
 
 sudo $QEMU \
   -cpu host \
@@ -205,8 +206,11 @@ sudo $QEMU \
   -drive if=pflash,format=raw,file=./ovmf/OVMF_VARS_4M.fd \
   -drive file=images/${IMG}.qcow2,if=virtio,format=qcow2,cache=none,aio=native \
   -cdrom images/cloud-init.iso \
+  \
   -device ioh3420,id=pcie.0,chassis=1 \
-  -device vfio-pci,sysfsdev=/sys/bus/pci/devices/0000:81:00.4 \
+  \
+  -device vfio-pci,host=${VF_ADDR},bus=pcie.0,id=gpu0 \
+  \
   -device virtio-net-pci,bus=pcie.0,netdev=net0,disable-legacy=on,disable-modern=off,iommu_platform=on,ats=on \
   -netdev user,id=net0,host=10.0.2.10,hostfwd=tcp::${PORT}-:22 \
   -device virtio-serial-pci,disable-modern=false,id=serial0 \
@@ -215,4 +219,4 @@ sudo $QEMU \
   -vga none -display none \
   ${iommu_str} \
   -nographic \
-  -s -S
+  ${debug_str}
